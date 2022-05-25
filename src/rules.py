@@ -1,9 +1,73 @@
+from bs4 import BeautifulStoneSoup
 import numpy as np
 import cv2
 from typing import Callable, Dict, List, Optional, Union
 import pandas as pd
 
-from utils import context
+from utils import context, binarise
+
+
+###### GoL #####
+
+
+# Define function for Game of Life
+def GoL(seed=np.ndarray, n_generations=int):
+    """Performs Game of Life simulations
+
+    Args:
+        seed (np.ndarray): Image seed, to perform GoL on  Defaults to np.ndarray.
+        n_generations (int): Number of generations to perform. Defaults to int.
+
+    Returns:
+        List: List of generations
+    """
+    # Binarise seed
+    seed = binarise(seed)
+
+    # Empty list for appending generations to (and start with the seed)
+    generations = []
+
+    # Append seed to list of generations
+    generations.append(seed)
+
+    # Apply 1-layer 0-padding
+    seed = np.pad(seed, 1)
+
+    # Define n_rows and n_cols from shape of img
+    n_rows, n_cols = seed.shape
+
+    # Perform ticks
+    for i in range(n_generations):
+        # Create image for next step, for overwriting
+        generation = np.array(np.zeros(shape=(n_rows, n_cols), dtype=np.int32))
+
+        # For loop that iterates over each cell in the array
+        for r in range(n_rows - 2):
+            for c in range(n_cols - 2):
+
+                # Find number of alive neighbours for each cell
+                sum_context = sum(context(seed, r, c).flatten())
+
+                # Any live cell with fewer than 2 or more than 3, dies
+                if seed[r + 1, c + 1] == 1 * 255:
+                    if sum_context < 2 * 255 or sum_context > 3 * 255:
+                        generation[r + 1, c + 1] = 0
+
+                # Any live cell with two or three live neighbours lives, unchanged
+                if seed[r + 1, c + 1] == 1 * 255 and 4 * 255 > sum_context > 1 * 255:
+                    generation[r + 1, c + 1] = 1 * 255
+
+                # Any dead cell with exactly 3 three live neighbours will come to life
+                if seed[r + 1, c + 1] == 0 and sum_context == 3 * 255:
+                    generation[r + 1, c + 1] = 1 * 255
+
+        # Assign newest generation as the new seed
+        seed = generation.copy()
+
+        # Append newest generation to list of generations
+        generations.append(generation[1:-1, 1:-1])
+
+    return generations
 
 
 ###### CORROSION #####
@@ -108,7 +172,7 @@ def melt(seed: np.ndarray, n_generations: int, s: int = 1000):
 
                 # If gradient is positive, then start melting process
                 if d < 0:
-                    generation[r + 1, c] = seed[r + 1, c] + (-d / v)
+                    generation[r + 1, c] = seed[r + 1, c] + (-d / s)
 
                 # else, keep same value
                 else:
@@ -127,11 +191,11 @@ def melt(seed: np.ndarray, n_generations: int, s: int = 1000):
     return generations
 
 
-##### CUMULATIVE MASS #####
+##### CUMULATIVE CHANGE #####
 
 
 # Define function for calculating measure of corrosion-increase-from-baseline on an entire feature set
-def cumulative_mass(
+def cumulative_change(
     X,
     y,
     rule,
@@ -146,14 +210,14 @@ def cumulative_mass(
     Args:
         X (np.nd.array): 3D array with dim(samples, 1st_dimension_of_img, 2nd_dimension_of_img)
         y (np.nd.array): 1D array with labels for images
-        rule (str): String specifying which rule to run - takes either 'corrosion' or 'melt'
+        rule (str): String specifying which rule to run - takes either 'corrosion' or 'melt' or 'gol'
         n_generations (int): Number of generations to perform
         Q (function): Function that calculates impending corrosion speed - also based on y.
         l (float): Number describing how much corrosion takes place
         v (int): Number describing the threshold for "smooth surfaces" (i.e. surfaces where corrosion doesn't happen)
         s (int, optional): Scaling factor for how much material to melt relative to image gradient
     """
-    corrosion_increase_by_number = []
+    log_change = []
     n_class = []
     augmented_numbers = []
 
@@ -172,29 +236,49 @@ def cumulative_mass(
         elif rule == "melt":
             generations = melt(seed, n_generations, s)
 
+        elif rule == "gol":
+            generations = GoL(seed, n_generations)
+
         # Define lists to store corrosion evoluation and class of current image
-        corrosion_increases = []
+        c_log = []
         c_class = []
 
         # For each generation, calculate ??? (Jakob, definér?)
         for i in generations:
+
+            # Calc amount of grayness in current gen
             sum_generation = sum(i.flatten())
 
             # Append data to lisrts
-            corrosion_increases.append((sum_generation - sum_seed))
+            c_log.append((sum_generation - sum_seed))
 
             c_class.append(class_of_seed)
 
         # Append data for each generation to global lists
-        corrosion_increase_by_number.append(corrosion_increases)
+        log_change.append(c_log)
 
         n_class.append(c_class)
 
         augmented_numbers.append(generations)
 
+        # Generate df
+        df1 = (
+            pd.DataFrame(np.array(n_class).transpose())
+            .melt()
+            .drop("variable", axis=1)
+            .rename({"value": "class"}, axis=1)
+        )
+        df2 = (
+            pd.DataFrame(np.array(log_change).transpose())
+            .melt()
+            .drop("variable", axis=1)
+            .rename({"value": "change"}, axis=1)
+        )
+
+        df = pd.DataFrame([df1["class"], df2["change"]]).transpose()
+
     # Return cumulative corrosion mass, augmented images and class labels for each image
     return (
-        corrosion_increase_by_number,
+        df,
         augmented_numbers,
-        n_class,
     )
