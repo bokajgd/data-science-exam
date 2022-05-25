@@ -28,7 +28,7 @@ def load_data(subset: int = 250):
     X_test = X_test[:subset]
     y_test = y_test[:subset]
 
-    return (X_train, X_val, X_test, y_train, y_val, y_test,) 
+    return (X_train, X_val, X_test, y_train, y_val, y_test) 
 
 
 # Define W(d, l) - Function that calculates impending corrosion speed - also based on y.

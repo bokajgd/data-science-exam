@@ -9,7 +9,7 @@ from rules import cumulative_change
 def main():
 
     # Load data
-    X_train, y_train, X_val, X_test, y_val, y_test = load_data()
+    X_train, X_val, X_test, y_train, y_val, y_test = load_data()
 
     # Generate features
     df, augmented_numbers = cumulative_change(X=X_train, 
