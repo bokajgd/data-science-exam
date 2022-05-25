@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import keras
+from keras import layers
 from sklearn.model_selection import train_test_split
 from keras.datasets import mnist
 
@@ -115,3 +116,31 @@ def make_1d_cnn_model(X_train_shape):
     model = keras.models.Model(inputs=input_layer, outputs=output_layer)
 
     return model
+
+# Define function for making 2D CNN model for timeseries classification
+def make_2d_cnn_model(X_train_shape):
+    """Takes the shape of X_train, and outputs a 2d CNN model for greyscale image classification
+
+    Args:
+        X_train_shape (tuple): Tuple with dimensions of the training data
+
+    Returns:
+        keras.models.Model: 1D CNN model for time series predictions
+    """  
+    input_shape = (X_train_shape[1], X_train_shape[2], 1) # Get input dimensions to be 28 x 28 x 1
+
+    model = keras.Sequential(
+        [
+            keras.Input(shape=input_shape),
+            layers.Conv2D(32, kernel_size=(3, 3), activation="relu"),
+            layers.MaxPooling2D(pool_size=(2, 2)),
+            layers.Conv2D(64, kernel_size=(3, 3), activation="relu"),
+            layers.MaxPooling2D(pool_size=(2, 2)),
+            layers.Flatten(),
+            layers.Dropout(0.5),
+            layers.Dense(10, activation="softmax"),
+        ]
+    )
+
+    return model
+
