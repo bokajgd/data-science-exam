@@ -4,6 +4,7 @@ import keras
 from keras import layers
 from sklearn.model_selection import train_test_split
 from keras.datasets import mnist
+from keras import layers
 
 # Define function for loading data
 def load_data(subset: int = 250):
@@ -24,7 +25,7 @@ def load_data(subset: int = 250):
 
     # Subset for faster processing
     X_train = X_train[: subset * 2]
-    y_train = y_test[: subset * 2]
+    y_train = y_train[: subset * 2]
     X_val = X_val[:subset]
     y_val = y_val[:subset]
     X_test = X_test[:subset]
@@ -80,8 +81,8 @@ def binarise(img, threshold):
         np.ndarray: Binarized image
     """
 
-    img[img >= threshold] = 255
-    img[img < threshold] = 0
+    img[img > threshold] = 255
+    img[img <= threshold] = 0
 
     return img
 
@@ -144,3 +145,27 @@ def make_2d_cnn_model(X_train_shape):
 
     return model
 
+
+# Define function for calculating mean number of active cells per class 
+def mean_cells_active(X,y):
+
+    # Retrieve indices for all samples of zeros, ones, two's, etc. ...
+    indices = []
+    for i in range(10):
+        indices.append(list(np.where(y==i)[0]))
+
+    # List of average active cells for each number
+    mean_cells_active = []
+
+    # For each number in range 0, 1, 2, .. 9.
+    for number in range(len(indices)):
+        active_cells_in_images = []
+
+        # For each list of image indices
+        for index in indices[number]:
+            active_cells_in_img = len(X[index][X[index] > 0])
+            active_cells_in_images.append(active_cells_in_img)
+        
+        mean_cells_active.append(np.mean(active_cells_in_images))
+    
+    return mean_cells_active

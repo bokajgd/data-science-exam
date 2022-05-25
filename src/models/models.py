@@ -1,6 +1,15 @@
 import keras
 import pandas as pd
+import nummpy as np
 from sklearn import metrics
+from keras import layers
+from keras.utils import np_utils
+from keras.datasets import mnist
+from scipy.signal import medfilt
+from sklearn.preprocessing import normalize
+from sklearn import svm, metrics, datasets, preprocessing
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
 
 # Defining function for CNN models
 def cnn(X_train, y_train, X_test, y_test, model, epochs):

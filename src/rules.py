@@ -12,19 +12,20 @@ from utils import context, binarise, Q
 
 
 # Define function for Game of Life
-def GoL(seed=np.ndarray, n_generations=int, context: Callable = context):
+def GoL(seed=np.ndarray, n_generations=int, context: Callable = context, threshold: float=0.0):
     """Performs Game of Life simulations
 
     Args:
         seed (np.ndarray): Image seed, to perform GoL on  Defaults to np.ndarray.
         n_generations (int): Number of generations to perform. Defaults to int.
         context (function): Function specifying the neighbourhood kernel for a given cell
+        threshold (float): Grayness threshold for determining when a cell is alive
 
     Returns:
         List: List of generations
     """
     # Binarise seed
-    seed = binarise(seed)
+    seed = binarise(seed, threshold)
 
     # Empty list for appending generations to (and start with the seed)
     generations = []
@@ -48,7 +49,7 @@ def GoL(seed=np.ndarray, n_generations=int, context: Callable = context):
             for c in range(n_cols - 2):
 
                 # Find number of alive neighbours for each cell
-                sum_context = sum(context(seed, r, c).flatten())
+                sum_context = sum(context(seed, r, c))
 
                 # Any live cell with fewer than 2 or more than 3, dies
                 if seed[r + 1, c + 1] == 1 * 255:
@@ -162,8 +163,14 @@ def melt(seed: np.ndarray, n_generations: int, s: int = 1000, context: Callable 
     # Calculate y-direction Sobel image gradient
     sobely = cv2.Sobel(seed, cv2.CV_32F, 0, 1, ksize=3)
 
+    # Variable for counting gen iteration + 1
+    it = 0
+
     # Augment one generation at a times
     for generation in range(n_generations):
+        
+        # Updating iteration counter
+        it += 1 
 
         # Create image for next step, for overwriting
         generation = np.array(np.zeros(shape=(n_rows, n_cols), dtype=np.float32))
@@ -176,7 +183,7 @@ def melt(seed: np.ndarray, n_generations: int, s: int = 1000, context: Callable 
 
                 # If gradient is positive, then start melting process
                 if d < 0:
-                    generation[r + 1, c] = seed[r + 1, c] + (-d / s)
+                    generation[r + 1, c] = seed[r + 1, c] + ((-d / s) * it)
 
                 # else, keep same value
                 else:
@@ -208,12 +215,13 @@ def cumulative_change(
     l: float = None,
     v: int = None,
     s: int = None,
+    threshold: float = 0.0,
     context: Callable = context,
 ):
     """Function for calculating measure of corrosion-increase-from-baseline on an entire feature set
 
     Args:
-        X (np.nd.array): 3D array with dim(samples, 1st_dimension_of_img, 2nd_dimension_of_img)
+        X (np.nd.array): 3D arra    y with dim(samples, 1st_dimension_of_img, 2nd_dimension_of_img)
         y (np.nd.array): 1D array with labels for images
         rule (str): String specifying which rule to run - takes either 'corrosion' or 'melt' or 'gol'
         n_generations (int): Number of generations to perform
@@ -221,7 +229,8 @@ def cumulative_change(
         l (float): Number describing how much corrosion takes place
         v (int): Number describing the threshold for "smooth surfaces" (i.e. surfaces where corrosion doesn't happen)
         s (int, optional): Scaling factor for how much material to melt relative to image gradient
-        context (function): Function specifying the neighbourhood kernel for a given cell
+        threshold (float, optional: Grayness threshold for determining when a cell is alive
+        context (function, optional): Function specifying the neighbourhood kernel for a given cell
 
     """
     log_change = []
@@ -231,9 +240,16 @@ def cumulative_change(
     # For 0, 1, 2, ... len(X):
     for i in range(len(list(X))):
 
-        # Define seed, sum of seed and class of seed
+        # Define seed
         seed = X[i]
+    
+        # Binarise seed if input rule is GoL
+        if rule == 'gol':
+            seed = binarise(seed, threshold)
+
+        # Define sum of seed and class of seed
         sum_seed = sum(seed.flatten())
+
         class_of_seed = y[i]
 
         # Apply corroosion functions
@@ -244,7 +260,7 @@ def cumulative_change(
             generations = melt(seed, n_generations, s, context)
 
         elif rule == "gol":
-            generations = GoL(seed, n_generations, context)
+            generations = GoL(seed, n_generations, context, threshold)
 
         # Define lists to store corrosion evoluation and class of current image
         c_log = []
@@ -255,9 +271,16 @@ def cumulative_change(
 
             # Calc amount of grayness in current gen
             sum_generation = sum(i.flatten())
+            
+            # Calc change
+            change = sum_generation - sum_seed
+
+            # Transofrm to a binary count if rule is GoL
+            if rule == 'gol':
+                change = change/255
 
             # Append data to lisrts
-            c_log.append((sum_generation - sum_seed))
+            c_log.append(change)
 
             c_class.append(class_of_seed)
 
@@ -294,4 +317,5 @@ def cumulative_change(
     return (
         df,
         augmented_numbers,
+        np.array(log_change),
     )
