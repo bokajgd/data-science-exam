@@ -13,9 +13,9 @@ from plotting.plot_utils import plot_avg_timeseries
 def main():
 
     # Load data
-    X_train, X_val, X_test, y_train, y_val, y_test = load_data(subset=500)
+    X_train, X_val, X_test, y_train, y_val, y_test = load_data(subset=250)
 
-    # Generate features
+    # Generate training features
     df_cor, augmented_numbers_cor, cor_mass = cumulative_change(X=X_train, 
                                               y=y_train, 
                                               rule='corrosion',
@@ -39,18 +39,44 @@ def main():
                                               s=100,
                                               context=context)
 
-    # Generate performance table and plot
+                                    
+    # Generate features on validation set
+    df_cor, augmented_numbers_cor, cor_mass = cumulative_change(X=X_train, 
+                                              y=y_train, 
+                                              rule='corrosion',
+                                              n_generations=15,
+                                              Q=Q, 
+                                              l=0.1,
+                                              v=10,
+                                              context=context)
+
+    df_gol, augmented_numbers_gol, gol_change = cumulative_change(X=X_train, 
+                                              y=y_train, 
+                                              rule='gol',
+                                              n_generations=15,
+                                              threshold=0.0,
+                                              context=context)
+
+    df_melt, augmented_numbers_melt, melt_mass = cumulative_change(X=X_train, 
+                                              y=y_train, 
+                                              rule='melt',
+                                              n_generations=15,
+                                              s=100,
+                                              context=context)
+                                              
+    # Make base models
     model_cnn1 = make_1d_cnn_model(melt_mass.shape)
 
-    cnn1_cor_preds, cnn1_cor_report = cnn(melt_mass, y_train, melt_mass, y_train, model_cnn1, 10)
+    # Fit models to data
+    cnn1_cor_preds, cnn1_cor_report = cnn(melt_mass, y_train, melt_mass, y_train, model_cnn1, 100)
 
-    cnn1_gol_preds, cnn1_gol_report = cnn(melt_mass, y_train, melt_mass, y_train, model_cnn1, 10)
+    cnn1_gol_preds, cnn1_gol_report = cnn(melt_mass, y_train, melt_mass, y_train, model_cnn1, 100)
 
-    cnn1_melt_preds, cnn1_melt_report = cnn(melt_mass, y_train, melt_mass, y_train, model_cnn1, 200)
-
-    model_cnn2 = make_2d_cnn_model(X_train.shape)
+    cnn1_melt_preds, cnn1_melt_report = cnn(melt_mass, y_train, melt_mass, y_train, model_cnn1, 100)
     
     cnn2_mnist_preds, cnn2_mnist_report = cnn(X_train, y_train, X_train, y_train, model_cnn2, 5)
+
+    # Ensemble prediction
 
     # Generate other plots
     

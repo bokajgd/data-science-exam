@@ -170,7 +170,7 @@ def melt(seed: np.ndarray, n_generations: int, s: int = 1000, context: Callable 
     for generation in range(n_generations):
         
         # Updating iteration counter
-        it += 1 
+        it += 0.1 
 
         # Create image for next step, for overwriting
         generation = np.array(np.zeros(shape=(n_rows, n_cols), dtype=np.float32))
