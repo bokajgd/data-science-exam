@@ -1,5 +1,7 @@
 import numpy as np
 import pandas as pd
+import keras
+from keras import layers
 from sklearn.model_selection import train_test_split
 from keras.datasets import mnist
 
@@ -28,7 +30,7 @@ def load_data(subset: int = 250):
     X_test = X_test[:subset]
     y_test = y_test[:subset]
 
-    return (X_train, X_val, X_test, y_train, y_val, y_test,) 
+    return (X_train, X_val, X_test, y_train, y_val, y_test) 
 
 
 # Define W(d, l) - Function that calculates impending corrosion speed - also based on y.
@@ -82,3 +84,63 @@ def binarise(img, threshold):
     img[img < threshold] = 0
 
     return img
+
+# Define function for making 1D CNN model for timeseries classification
+def make_1d_cnn_model(X_train_shape):
+    """Takes the shape of X_train, and outputs a 1d CNN model for timeseries predictions
+
+    Args:
+        X_train_shape (tuple): Tuple with dimensions of the training data
+
+    Returns:
+        keras.models.Model: 1D CNN model for time series predictions
+    """    
+    # Define inputshape - should be (length of timeseries, 1)
+    input_shape = (X_train_shape[1], 1)
+
+    # Define architecture
+    input_layer = keras.layers.Input(input_shape)
+    conv1 = keras.layers.Conv1D(filters=64, kernel_size=3, padding="same")(input_layer)
+    conv1 = keras.layers.BatchNormalization()(conv1)
+    conv1 = keras.layers.ReLU()(conv1)
+    conv2 = keras.layers.Conv1D(filters=64, kernel_size=3, padding="same")(conv1)
+    conv2 = keras.layers.BatchNormalization()(conv2)
+    conv2 = keras.layers.ReLU()(conv2)
+    conv3 = keras.layers.Conv1D(filters=64, kernel_size=3, padding="same")(conv2)
+    conv3 = keras.layers.BatchNormalization()(conv3)
+    conv3 = keras.layers.ReLU()(conv3)
+    gap = keras.layers.GlobalAveragePooling1D()(conv3)
+    output_layer = keras.layers.Dense(10, activation="softmax")(gap)
+
+    # Return the model
+    model = keras.models.Model(inputs=input_layer, outputs=output_layer)
+
+    return model
+
+# Define function for making 2D CNN model for timeseries classification
+def make_2d_cnn_model(X_train_shape):
+    """Takes the shape of X_train, and outputs a 2d CNN model for greyscale image classification
+
+    Args:
+        X_train_shape (tuple): Tuple with dimensions of the training data
+
+    Returns:
+        keras.models.Model: 1D CNN model for time series predictions
+    """  
+    input_shape = (X_train_shape[1], X_train_shape[2], 1) # Get input dimensions to be 28 x 28 x 1
+
+    model = keras.Sequential(
+        [
+            keras.Input(shape=input_shape),
+            layers.Conv2D(32, kernel_size=(3, 3), activation="relu"),
+            layers.MaxPooling2D(pool_size=(2, 2)),
+            layers.Conv2D(64, kernel_size=(3, 3), activation="relu"),
+            layers.MaxPooling2D(pool_size=(2, 2)),
+            layers.Flatten(),
+            layers.Dropout(0.5),
+            layers.Dense(10, activation="softmax"),
+        ]
+    )
+
+    return model
+
