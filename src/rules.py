@@ -3,8 +3,9 @@ import numpy as np
 import cv2
 from typing import Callable, Dict, List, Optional, Union
 import pandas as pd
+from itertools import cycle
 
-from utils import context, binarise
+from utils import context, binarise, Q
 
 
 ###### GoL #####
@@ -75,7 +76,7 @@ def GoL(seed=np.ndarray, n_generations=int, context: Callable = context):
 
 
 # Define function for corrosion
-def corrosion(seed: np.ndarray, n_generations: int, l: float, v: int, Q, context: Callable = context):
+def corrosion(seed: np.ndarray, n_generations: int, l: float, v: int, Q: Callable = Q, context: Callable = context):
     """Performs corrosion generations over time, as described in paper by Horsmans, Grøhn & Jessen, 2022
 
     Args:
@@ -107,10 +108,10 @@ def corrosion(seed: np.ndarray, n_generations: int, l: float, v: int, Q, context
             for c in range(n_cols - 2):
 
                 # Get all neighbours
-                context = context(seed, r, c)
+                neighbours = context(seed, r, c)
 
                 # d (Difference) is difference between center and the lowest in the context
-                d = int(seed[r + 1, c + 1]) - int(np.min(context))
+                d = int(seed[r + 1, c + 1]) - int(np.min(neighbours))
 
                 # Any cell with difference > v and difference < 255 changes value to previous_value + q(d, l)
                 if 255 >= d and d >= v:
@@ -203,7 +204,7 @@ def cumulative_change(
     y,
     rule,
     n_generations,
-    Q: Callable = None,
+    Q: Callable = Q,
     l: float = None,
     v: int = None,
     s: int = None,
@@ -274,6 +275,7 @@ def cumulative_change(
             .drop("variable", axis=1)
             .rename({"value": "class"}, axis=1)
         )
+
         df2 = (
             pd.DataFrame(np.array(log_change).transpose())
             .melt()
@@ -282,6 +284,11 @@ def cumulative_change(
         )
 
         df = pd.DataFrame([df1["class"], df2["change"]]).transpose()
+
+        # Add collumn showing generation
+        gens = cycle(range(0, n_generations+1))
+        
+        df['generation'] = [next(gens) for num in range(len(df))]
 
     # Return cumulative corrosion mass, augmented images and class labels for each image
     return (
