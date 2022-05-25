@@ -1,6 +1,6 @@
 import keras
 import pandas as pd
-import nummpy as np
+import numpy as np
 from sklearn import metrics
 from keras import layers
 from keras.utils import np_utils
@@ -13,7 +13,7 @@ from sklearn.linear_model import LogisticRegression
 
 # Defining function for CNN models
 def cnn(X_train, y_train, X_test, y_test, model, epochs):
-    """Trains and tests a given 1D CNN model
+    """Trains and tests a given CNN model
 
     Args:
         X_train (array): Training set with dim = (n_samples, len_timeseries)
