@@ -2,7 +2,7 @@ import cv2, keras
 import numpy as np
 import pandas as pd
 
-from utils import load_data, Q, context
+from utils import load_data, Q, context, make_1d_cnn_model
 from rules import cumulative_change
 
 # Defining main function
