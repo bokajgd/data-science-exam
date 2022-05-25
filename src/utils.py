@@ -1,5 +1,35 @@
 import numpy as np
 import pandas as pd
+from sklearn.model_selection import train_test_split
+from keras.datasets import mnist
+
+# Define function for loading data
+def load_data(subset: int = 250):
+    """Function for loading data
+    Args:
+        subset (int): Integer specifying size of subset
+        
+    Returns:
+        Train, val and test data sets with labels
+    """
+    # Load data
+    (X_train, y_train), (X_test, y_test) = mnist.load_data()
+
+    # Create validation set
+    X_val, X_test, y_val, y_test = train_test_split(
+        X_test, y_test, train_size=0.5, random_state=42
+    )
+
+    # Subset for faster processing
+    X_train = X_train[: subset * 2]
+    y_train = y_test[: subset * 2]
+    X_val = X_val[:subset]
+    y_val = y_val[:subset]
+    X_test = X_test[:subset]
+    y_test = y_test[:subset]
+
+    return (X_train, X_val, X_test, y_train, y_val, y_test,) 
+
 
 # Define W(d, l) - Function that calculates impending corrosion speed - also based on y.
 def Q(d, l):

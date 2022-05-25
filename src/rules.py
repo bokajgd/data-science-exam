@@ -1,4 +1,4 @@
-from bs4 import BeautifulStoneSoup
+import pandas as pd
 import numpy as np
 import cv2
 from typing import Callable, Dict, List, Optional, Union
@@ -11,12 +11,13 @@ from utils import context, binarise
 
 
 # Define function for Game of Life
-def GoL(seed=np.ndarray, n_generations=int):
+def GoL(seed=np.ndarray, n_generations=int, context: Callable = context):
     """Performs Game of Life simulations
 
     Args:
         seed (np.ndarray): Image seed, to perform GoL on  Defaults to np.ndarray.
         n_generations (int): Number of generations to perform. Defaults to int.
+        context (function): Function specifying the neighbourhood kernel for a given cell
 
     Returns:
         List: List of generations
@@ -74,7 +75,7 @@ def GoL(seed=np.ndarray, n_generations=int):
 
 
 # Define function for corrosion
-def corrosion(seed: np.ndarray, n_generations: int, l: float, v: int, Q):
+def corrosion(seed: np.ndarray, n_generations: int, l: float, v: int, Q, context: Callable = context):
     """Performs corrosion generations over time, as described in paper by Horsmans, Grøhn & Jessen, 2022
 
     Args:
@@ -83,6 +84,7 @@ def corrosion(seed: np.ndarray, n_generations: int, l: float, v: int, Q):
         l (float): Number describing how much corrosion takes place
         v (int): Number describing the threshold for "smooth surfaces" (i.e. surfaces where corrosion doesn't happen)
         Q (function): Function that calculates impending corrosion speed - also based on y.
+        context (function): Function specifying the neighbourhood kernel for a given cell
     """
     # Empty list for appending generations to (and start with the seed)
     generations = []
@@ -132,13 +134,14 @@ def corrosion(seed: np.ndarray, n_generations: int, l: float, v: int, Q):
 
 
 # Define function for corrosion
-def melt(seed: np.ndarray, n_generations: int, s: int = 1000):
+def melt(seed: np.ndarray, n_generations: int, s: int = 1000, context: Callable = context):
     """Performs corrosion generations over time, as described in paper by Horsmans, Grøhn & Jessen, 2022
 
     Args:
         seed (np.ndarray): Image seed, to perform corrosion on - Defaults to np.ndarray.
         n_generations (int): Number of generations to perform. Defaults to int.
         v (float): Number describing how much corrosion takes place
+        context (function): Function specifying the neighbourhood kernel for a given cell
     """
     # Change dtype of seed
     seed = np.array(seed, dtype=np.float32)
@@ -204,6 +207,7 @@ def cumulative_change(
     l: float = None,
     v: int = None,
     s: int = None,
+    context: Callable = context,
 ):
     """Function for calculating measure of corrosion-increase-from-baseline on an entire feature set
 
@@ -216,6 +220,8 @@ def cumulative_change(
         l (float): Number describing how much corrosion takes place
         v (int): Number describing the threshold for "smooth surfaces" (i.e. surfaces where corrosion doesn't happen)
         s (int, optional): Scaling factor for how much material to melt relative to image gradient
+        context (function): Function specifying the neighbourhood kernel for a given cell
+
     """
     log_change = []
     n_class = []
@@ -231,13 +237,13 @@ def cumulative_change(
 
         # Apply corroosion functions
         if rule == "corrosion":
-            generations = corrosion(seed, n_generations, l, v, Q)
+            generations = corrosion(seed, n_generations, l, v, Q, context)
 
         elif rule == "melt":
-            generations = melt(seed, n_generations, s)
+            generations = melt(seed, n_generations, s, context)
 
         elif rule == "gol":
-            generations = GoL(seed, n_generations)
+            generations = GoL(seed, n_generations, context)
 
         # Define lists to store corrosion evoluation and class of current image
         c_log = []
