@@ -4,11 +4,11 @@ import keras
 import random
 from keras import layers
 from sklearn.model_selection import train_test_split
-from keras.datasets import mnist
+from keras.datasets import mnist, fashion_mnist
 from keras import layers
 
 # Define function for loading data
-def load_data(subset: int = 250):
+def load_data(dataset: str = "MNIST", subset: int = 250):
     """Function for loading data
     Args:
         subset (int): Integer specifying size of subset
@@ -17,8 +17,12 @@ def load_data(subset: int = 250):
         Train, val and test data sets with labels
     """
     # Load data
-    (X_train, y_train), (X_test, y_test) = mnist.load_data()
+    if dataset == "MNIST":
+        (X_train, y_train), (X_test, y_test) = mnist.load_data()
 
+    if dataset == "Fashion MNIST":
+        (X_train, y_train), (X_test, y_test) = fashion_mnist.load_data()
+    
     # Create validation set
     X_val, X_test, y_val, y_test = train_test_split(
         X_test, y_test, train_size=0.5, random_state=42
