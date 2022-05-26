@@ -80,3 +80,26 @@ def lr(X_train, y_train, X_test, y_test):
 
 
 # Defining ensemble output functions
+def ensemble_predictions(predictions):
+    """Takes a list of 2D arrays with predictions. Finds the most certain of the model predictions for each image, as well as its prediction.
+
+    Args:
+        predictions (list): List of 2D arrays with predictions
+
+    Returns:
+        list: certain_model_indices is a 1D array. Each element shows the index of the model that was most certain for the given trial.
+        list: certain_predictions is a 1D array. Each element shows the prediction of the most that was most certain for the given trial.
+    """    
+    predictions = np.stack(predictions)
+
+    certain_model_indices = []
+    certain_predictions = []
+    for i in range(predictions.shape[1]):
+        
+        max_certainty = np.amax(predictions[:, i, :])
+        certain_model_index = np.where(predictions[:, i , :] == max_certainty)[0]
+        certain_prediction = np.where(predictions[:, i , :] == max_certainty)[1]
+        certain_model_indices.append(certain_model_index[0])
+        certain_predictions.append(certain_prediction[0])
+
+    return certain_model_indices, certain_predictions

@@ -14,16 +14,18 @@ def plot_avg_timeseries(df, x: str='generation', y: str='change', hue: str='clas
              data=df)
 
 # Plot for violin plots
-def plot_end_dist(df, n_gens, x: str='class', y: str='change', hue: str='class', palette: str='tab10'):
+def plot_end_dist(df, n_gens: int=None, x: str='class', y: str='change', palette: str='tab10'):
 
-    df = df.loc[df['generation'] == n_gens+1]
+    if 'generation' in df:
+
+        df = df.loc[df['generation'] == n_gens]
 
     sb.violinplot(
                 x="class", 
                 y="change", 
-                hue=hue, 
                 palette=palette,
-                data=df)
+                data=df,
+                scale='count')
 
 
 # Plot for MNIST examples

@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import keras
+import random
 from keras import layers
 from sklearn.model_selection import train_test_split
 from keras.datasets import mnist
@@ -168,4 +169,55 @@ def mean_cells_active(X,y):
         
         mean_cells_active.append(np.mean(active_cells_in_images))
     
-    return mean_cells_active
+    return (mean_cells_active)
+
+
+# Define function for getting df with counts of active pixels for each image
+def active_cells(X,y):
+    
+    active_cells_in_img = [sum(sum(img> 0)) for img in X]
+
+    df = pd.DataFrame({'class':y, 'change': active_cells_in_img})
+
+    return df
+
+def add_noise(img, n_pixels_change = 125):
+    """Function for adding salt and pepper noise
+
+    Args:
+        img (array): 2D np.array which one wants to add noise to
+        n_pixels_change (int, optional): How many pixels should be changed?. Defaults to 125.
+
+    Returns:
+        img (array): 2D array after adding noise
+    """    
+ 
+    # Getting the dimensions of the image
+    row , col = img.shape
+     
+    # Randomly pick some pixels in the image for coloring them white. Pick 50
+    for i in range(n_pixels_change//2):
+       
+        # Pick a random y coordinate
+        y_coord=random.randint(0, row - 1)
+         
+        # Pick a random x coordinate
+        x_coord=random.randint(0, col - 1)
+         
+        # Color that pixel to white
+        img[y_coord][x_coord] = 255
+         
+    # Randomly pick some pixels in
+    # the image for coloring them black
+    for i in range(n_pixels_change//2):
+       
+        # Pick a random y coordinate
+        y_coord=random.randint(0, row - 1)
+         
+        # Pick a random x coordinate
+        x_coord=random.randint(0, col - 1)
+         
+        # Color that pixel to black
+        img[y_coord][x_coord] = 0
+         
+    return img

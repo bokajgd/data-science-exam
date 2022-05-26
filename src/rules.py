@@ -183,7 +183,7 @@ def melt(seed: np.ndarray, n_generations: int, s: int = 1000, context: Callable 
 
                 # If gradient is positive, then start melting process
                 if d < 0:
-                    generation[r + 1, c] = seed[r + 1, c] + ((-d / s) * it)
+                    generation[r + 1, c] = seed[r + 1, c] + ((-d / s))
 
                 # else, keep same value
                 else:
