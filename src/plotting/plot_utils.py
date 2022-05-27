@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import pandas as pd
 import seaborn as sb
-import matplotlib as plt
+import matplotlib.pyplot as plt
 
 # Defining function for plotting latent time series features averaged over each class
 def plot_avg_timeseries(df, x: str='generation', y: str='change', hue: str='class', palette: str='tab10'):
@@ -29,7 +29,7 @@ def plot_end_dist(df, n_gens: int=None, x: str='class', y: str='change', palette
 
 
 # Plot for MNIST examples
-def plot_mnist(X, y, cmap = "gray", savename = os.path.join("plotting", "mnist_example.png")):
+def plot_mnist(X, y, cmap = "gray", savename = "plotting/mnist_example.png"):
     """Function for plotting examples of the MNIST dataset
 
     Args:
@@ -63,7 +63,7 @@ def plot_mnist(X, y, cmap = "gray", savename = os.path.join("plotting", "mnist_e
     plt.show()
 
 # Plot for digit evolution
-def plot_8_generations(generations, cmap = "gray", save_name = os.path.join("generation_plot.png")):
+def plot_8_generations(generations, cmap = "gray", save_name = "generation_plot.png"):
     """Function for plotting the seed and the next 8 generations
 
     Args:

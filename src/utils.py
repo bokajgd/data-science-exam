@@ -85,7 +85,7 @@ def binarise(img, threshold):
     Returns:
         np.ndarray: Binarized image
     """
-
+    img = img.copy()
     img[img > threshold] = 255
     img[img <= threshold] = 0
 

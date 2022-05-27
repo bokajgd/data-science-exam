@@ -103,3 +103,26 @@ def ensemble_predictions(predictions):
         certain_predictions.append(certain_prediction[0])
 
     return certain_model_indices, certain_predictions
+
+# Defining function for making ensemble predictions with probability averaging
+def ensemble_avg_proba(list_of_predict_probabilities):
+    """Ensemble prediction using average probability
+
+    Args:
+        list_of_predict_probabilities (list): List of arrays with probability predictions - one for each model
+
+    Returns:
+        array: Array with average probability predictions
+    """    
+    
+    acc_proba = list_of_predict_probabilities[0]
+
+    for i in list_of_predict_probabilities[1:]:
+        
+        acc_proba += i
+
+    avg_proba = acc_proba/len(list_of_predict_probabilities)
+
+    ensemble_predictions = np.argmax(avg_proba, axis = 1)
+
+    return ensemble_predictions
