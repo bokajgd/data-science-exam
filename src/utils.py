@@ -75,7 +75,7 @@ def context(seed: np.ndarray, r: int, c: int):
 
 
 # Define function for binarising MNIST images
-def binarise(img, threshold):
+def binarise(img: np.array=None, threshold: int=0):
     """Binarizes a 2D image on the basis of a threshold (dead cells = 0, alive cells = 1)
 
     Args:

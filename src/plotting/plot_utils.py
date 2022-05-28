@@ -5,28 +5,34 @@ import seaborn as sb
 import matplotlib.pyplot as plt
 
 # Defining function for plotting latent time series features averaged over each class
-def plot_avg_timeseries(df, x: str='generation', y: str='change', hue: str='class', palette: str='tab10'):
+def plot_avg_timeseries(df, x: str='generation', y: str='change', hue: str='class', palette: str='tab10', ylab: str='Change'):
 
     sb.lineplot(x=x, 
              y=y,
              hue=hue, 
              palette=palette,
-             data=df)
+             data=df,
+            legend=False).set(xlabel = "Generation", ylabel = ylab
+            )
+    plt.legend(fontsize='small', title_fontsize='12',title='Class', loc='upper left', labels=['T-shirt/top','Trouser','Pullover','Dress','Coat','Sandal','Shirt','Sneaker', 'Bag', 'Ankle boot'])
+
 
 # Plot for violin plots
-def plot_end_dist(df, n_gens: int=None, x: str='class', y: str='change', palette: str='tab10'):
+def plot_end_dist(df, n_gens: int=None, x: str='class', y: str='change', palette: str='tab10', ylab: str='Change'):
 
     if 'generation' in df:
 
         df = df.loc[df['generation'] == n_gens]
 
     sb.violinplot(
-                x="class", 
-                y="change", 
+                x=x, 
+                y=y, 
                 palette=palette,
                 data=df,
-                scale='count')
-
+                scale='count',
+                legend=False).set(xlabel = "Class", ylabel = ylab, xticklabels=['T-shirt/top','Trouser','Pullover','Dress','Coat','Sandal','Shirt','Sneaker', 'Bag', 'Ankle boot']
+                )
+    plt.xticks(rotation=45)
 
 # Plot for MNIST examples
 def plot_mnist(X, y, cmap = "gray", savename = "plotting/mnist_example.png"):

@@ -2,6 +2,7 @@ import cv2, keras, os
 import numpy as np
 import pandas as pd
 import seaborn as sb
+import csv
 from sklearn.metrics import matthews_corrcoef
 import matplotlib.pyplot as plt
 from sklearn import metrics, datasets, preprocessing
@@ -9,13 +10,13 @@ from sklearn import metrics, datasets, preprocessing
 from utils import (load_data, Q, context, make_1d_cnn_model, make_1d_cnn_model, make_2d_cnn_model, mean_cells_active, active_cells, add_noise)
 from rules import cumulative_change
 from models.models import (cnn, lr, ensemble_predictions, ensemble_avg_proba)
-from plotting.plot_utils import (plot_avg_timeseries, plot_end_dist, plot_mnist)
+from plotting.plot_utils import (plot_avg_timeseries, plot_end_dist, plot_mnist, plot_8_generations)
 
 # Defining main function
 def main():
 
     # Load data
-    X_train, X_val, X_test, y_train, y_val, y_test = load_data(dataset = "Fashion MNIST", subset=150)
+    X_train, X_val, X_test, y_train, y_val, y_test = load_data(dataset = "Fashion MNIST", subset=1000)
     
     # Generate noisy data
     # X_train_noise = np.array([add_noise(x) for x in X_train])
@@ -23,16 +24,16 @@ def main():
     # X_test_noise = np.array([add_noise(x) for x in X_test])
 
     # Set parameters
-    n_gens = 13
+    n_gens = 60
     l=0.1
     v=5
-    s=100
+    s=25
 
     # Generate training features
     df_cor, augmented_numbers_cor, cor_mass = cumulative_change(X=X_train, 
                                               y=y_train, 
                                               rule='corrosion',
-                                              n_generations=n_gens,
+                                              n_generations=int(n_gens/2),
                                               Q=Q, 
                                               l=l,
                                               v=v,
@@ -41,7 +42,7 @@ def main():
     df_gol, augmented_numbers_gol, gol_change = cumulative_change(X=X_train, 
                                               y=y_train, 
                                               rule='gol',
-                                              n_generations=10, # Changed to 10
+                                              n_generations=int(n_gens/5), # Changed to 10
                                               threshold=0.0,
                                               context=context)
 
@@ -57,7 +58,7 @@ def main():
     df_cor_val, augmented_numbers_cor_val, cor_mass_val = cumulative_change(X=X_val, 
                                               y=y_val, 
                                               rule='corrosion',
-                                              n_generations=n_gens,
+                                              n_generations=int(n_gens/2),
                                               Q=Q, 
                                               l=l,
                                               v=v,
@@ -66,7 +67,7 @@ def main():
     df_gol_val, augmented_numbers_gol_val, gol_change_val = cumulative_change(X=X_val, 
                                               y=y_val, 
                                               rule='gol',
-                                              n_generations=10,
+                                              n_generations=int(n_gens/5),
                                               threshold=0.0,
                                               context=context)
 
@@ -76,9 +77,11 @@ def main():
                                               n_generations=n_gens,
                                               s=s,
                                               context=context)
-                                              
+                            
     # Make base models
-    model_cnn1 = make_1d_cnn_model(melt_mass.shape)
+    model_cnn1 = make_1d_cnn_model(cor_mass.shape)
+
+    model_cnn1_melt = make_1d_cnn_model(melt_mass.shape)
 
     model_cnn1_gol = make_1d_cnn_model(gol_change.shape)
 
@@ -89,7 +92,7 @@ def main():
 
     cnn1_gol_preds, cnn1_gol_report = cnn(gol_change, y_train, gol_change_val, y_val, model_cnn1_gol, 50)
 
-    cnn1_melt_preds, cnn1_melt_report = cnn(melt_mass, y_train, melt_mass_val, y_val, model_cnn1, 50)
+    cnn1_melt_preds, cnn1_melt_report = cnn(melt_mass, y_train, melt_mass_val, y_val, model_cnn1_melt, 50)
     
     cnn2_mnist_preds, cnn2_mnist_report = cnn(X_train, y_train, X_val, y_val, model_cnn2, 50)
 
@@ -148,14 +151,15 @@ def main():
     pd.Series(certain_model_melt).value_counts()
     pd.Series(certain_model_full).value_counts()
 
+
     # Generate other plots
 
 
-    plot_end_dist(df=df_cor, n_gens=n_gens)
+    plot_end_dist(df=df_cor, n_gens=int(n_gens/2))
 
-    plot_end_dist(df=df_gol, n_gens=n_gens)
+    plot_end_dist(df=df_gol, n_gens=int(n_gens/5))
 
-    plot_end_dist(df=df_melt, n_gens=n_gens)
+    plot_end_dist(df=df_melt, n_gens=int(n_gens))
 
 
     # Plotting class-averaged time series for cumulative corrosion mass
@@ -171,6 +175,31 @@ def main():
     plot_end_dist(df=active_cells)
 
     # Hyperparameter tuning loop
+
+    # Save files
+    with open('/Users/jakobgrohn/Desktop/Cognitive_Science/Cognitive Science 8th Semester/Data Science/Eksamen/data-science-exam/output/cor_aug.csv', 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',')
+        writer.writerows(augmented_numbers_cor)
+    
+    with open('/Users/jakobgrohn/Desktop/Cognitive_Science/Cognitive Science 8th Semester/Data Science/Eksamen/data-science-exam/output/gol_aug.csv', 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',')
+        writer.writerows(augmented_numbers_gol)
+
+    with open('/Users/jakobgrohn/Desktop/Cognitive_Science/Cognitive Science 8th Semester/Data Science/Eksamen/data-science-exam/output/melt_aug.csv', 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',')
+        writer.writerows(augmented_numbers_melt)
+
+    with open('/Users/jakobgrohn/Desktop/Cognitive_Science/Cognitive Science 8th Semester/Data Science/Eksamen/data-science-exam/output/cor_aug_val.csv', 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',')
+        writer.writerows(augmented_numbers_cor_val)
+    
+    with open('/Users/jakobgrohn/Desktop/Cognitive_Science/Cognitive Science 8th Semester/Data Science/Eksamen/data-science-exam/output/gol_aug_val.csv', 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',')
+        writer.writerows(augmented_numbers_gol_val)
+
+    with open('/Users/jakobgrohn/Desktop/Cognitive_Science/Cognitive Science 8th Semester/Data Science/Eksamen/data-science-exam/output/melt_aug_val.csv', 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',')
+        writer.writerows(augmented_numbers_melt_val)
 
 if __name__ == "__main__":
     main()
