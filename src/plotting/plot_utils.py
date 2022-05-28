@@ -12,9 +12,11 @@ def plot_avg_timeseries(df, x: str='generation', y: str='change', hue: str='clas
              hue=hue, 
              palette=palette,
              data=df,
-            legend=False).set(xlabel = "Generation", ylabel = ylab
+            legend=False, ci = 95).set(xlabel = "Generation", ylabel = ylab
             )
-    plt.legend(fontsize='small', title_fontsize='12',title='Class', loc='upper left', labels=['T-shirt/top','Trouser','Pullover','Dress','Coat','Sandal','Shirt','Sneaker', 'Bag', 'Ankle boot'])
+
+    plt.legend(fontsize='small', title_fontsize='12',title='Class', labels=['T-shirt/top','Trouser','Pullover','Dress','Coat','Sandal','Shirt','Sneaker', 'Bag', 'Ankle boot'],
+               bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
 
 
 # Plot for violin plots
