@@ -59,9 +59,15 @@ def lr(X_train, y_train, X_test, y_test):
     """    
 
     # If the array is 2D, flatten to 1D
-    if len(X_train.shape) > 2:
+    if len(X_train.shape) == 3:
         X_train = X_train.reshape(X_train.shape[0], -1)
-    if len(X_test.shape) > 2:
+    if len(X_test.shape) == 3:
+        X_test = X_test.reshape(X_test.shape[0], -1)
+
+    # If the array id 3D, flatten to 1D
+    if len(X_train.shape) == 4:
+        X_train = X_train.reshape(X_train.shape[0], -1)
+    if len(X_test.shape) == 4:
         X_test = X_test.reshape(X_test.shape[0], -1)
     
     # Define model

@@ -150,6 +150,33 @@ def make_2d_cnn_model(X_train_shape):
 
     return model
 
+# Define function for making 3D CNN model for timeseries classification
+def make_3d_cnn_model(X_train_shape):
+    """Takes the shape of X_train, and outputs a 3D CNN model for image classification
+
+    Args:
+        X_train_shape (tuple): Tuple with dimensions of the training data
+
+    Returns:
+        keras.models.Model: 3D CNN model for time series predictions
+    """  
+
+    input_shape = (X_train_shape[1], X_train_shape[2], X_train_shape[3], 1)
+
+    # Create the model
+    model = keras.Sequential()
+    model.add(layers.Conv3D(32, kernel_size=(3, 3, 3), activation='relu', kernel_initializer='he_uniform', input_shape=input_shape))
+    model.add(layers.MaxPooling3D(pool_size=(2, 2, 2)))
+    model.add(layers.BatchNormalization(center=True, scale=True))
+    model.add(layers.Dropout(0.5))
+    model.add(layers.Conv3D(16, kernel_size=(3, 3, 3), activation='relu', kernel_initializer='he_uniform'))
+    model.add(layers.MaxPooling3D(pool_size=(2, 2, 2)))
+    model.add(layers.BatchNormalization(center=True, scale=True))
+    model.add(layers.Flatten())
+    model.add(layers.Dense(32, activation='relu', kernel_initializer='he_uniform'))
+    model.add(layers.Dense(10, activation='softmax'))
+
+    return model
 
 # Define function for calculating mean number of active cells per class 
 def mean_cells_active(X,y):
