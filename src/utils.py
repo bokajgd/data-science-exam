@@ -225,3 +225,38 @@ def add_noise(img, n_pixels_change = 125):
         img[y_coord][x_coord] = 0
          
     return img
+
+# Function for normalising
+def normalize_2d(matrix):
+    """Function for normalising elements in an array
+    """
+    norm = np.linalg.norm(matrix)
+    matrix = matrix/norm  # normalized matrix
+    return matrix
+
+# Function for finding wronlgy classified mask
+def preds_true_false(y: np.array, predictions: np.array):
+    """Function for getting list of which classifications are wrong and true 
+    
+    Args:
+        y (array): 1D np.array containing true labels
+        predictions (array): 2D np.array contining prediction probabilites
+
+    Returns:
+        mask (array): 1D array containing labels 'True' or 'False' 
+        indicating the natue of the prediction
+    """
+    mask = np.array(np.logical_not(np.equal(y, np.argmax(predictions, axis = 1))))
+
+    return mask
+
+
+# Function for getting array of indexes of wrongly classified images
+def wrong_preds(array_1, array_2):
+    idxs = []
+
+    for idx, _ in enumerate(array_1):
+        if (array_1[idx] == True) and (array_2[idx] == False):
+            idxs.append(idx)
+
+    return np.array(idxs)

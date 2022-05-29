@@ -97,8 +97,14 @@ def plot_8_generations(generations, cmap = "gray", save_name = "generation_plot.
 
 # Plot showing original, augmented and cumulative change
 
-# Plot for hyperparameter tuning
-
 # Plot for wrongly classified
+def plot_images(img):
+    """Function for plotting an image
+
+    Args:
+        img (array): Array with dimensions:  (28, 28)
+    """    
+    # Plot generations and save
+    plt.plot,plt.imshow(img,cmap = 'gray'),plt.xticks([]), plt.yticks([])
 
 # Plot with image gradient vectors showing in pixels
