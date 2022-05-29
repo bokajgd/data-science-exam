@@ -26,16 +26,16 @@ def main():
     # X_test_noise = np.array([add_noise(x) for x in X_test])
 
     # Set parameters
-    n_gens = 60
+    n_gens = 30
     l=0.1
     v=5
-    s=25
+    s=500
 
     # Generate training features
     df_cor, augmented_numbers_cor, cor_mass = cumulative_change(X=X_train, 
                                               y=y_train, 
                                               rule='corrosion',
-                                              n_generations=int(n_gens/2),
+                                              n_generations=n_gens,
                                               Q=Q, 
                                               l=l,
                                               v=v,
@@ -44,7 +44,7 @@ def main():
     df_gol, augmented_numbers_gol, gol_change = cumulative_change(X=X_train, 
                                               y=y_train, 
                                               rule='gol',
-                                              n_generations=int(n_gens/5), # Changed to 10
+                                              n_generations=n_gens,
                                               threshold=0.0,
                                               context=context)
 
@@ -60,7 +60,7 @@ def main():
     df_cor_val, augmented_numbers_cor_val, cor_mass_val = cumulative_change(X=X_val, 
                                               y=y_val, 
                                               rule='corrosion',
-                                              n_generations=int(n_gens/2),
+                                              n_generations=n_gens,
                                               Q=Q, 
                                               l=l,
                                               v=v,
@@ -69,7 +69,7 @@ def main():
     df_gol_val, augmented_numbers_gol_val, gol_change_val = cumulative_change(X=X_val, 
                                               y=y_val, 
                                               rule='gol',
-                                              n_generations=int(n_gens/5),
+                                              n_generations=n_gens,
                                               threshold=0.0,
                                               context=context)
 
@@ -79,7 +79,15 @@ def main():
                                               n_generations=n_gens,
                                               s=s,
                                               context=context)
-                            
+    
+    # Make iterations 3D to arrays
+    augmented_numbers_cor = np.array(augmented_numbers_cor)
+    augmented_numbers_gol = np.array(augmented_numbers_gol)
+    augmented_numbers_melt = np.array(augmented_numbers_melt)
+    augmented_numbers_cor_val = np.array(augmented_numbers_cor_val)
+    augmented_numbers_gol_val = np.array(augmented_numbers_gol_val)
+    augmented_numbers_melt_val = np.array(augmented_numbers_melt_val)
+
     # Make base models
     model_cnn1 = make_1d_cnn_model(cor_mass.shape)
 
@@ -89,6 +97,8 @@ def main():
 
     model_cnn2 = make_2d_cnn_model(X_train.shape)
 
+    model_cnn3 = make_3d_cnn_model(augmented_numbers_gol.shape)
+
     # Fit models to data
     cnn1_cor_preds, cnn1_cor_report = cnn(cor_mass, y_train, cor_mass_val, y_val, model_cnn1, 50)
 
@@ -97,6 +107,21 @@ def main():
     cnn1_melt_preds, cnn1_melt_report = cnn(melt_mass, y_train, melt_mass_val, y_val, model_cnn1_melt, 50)
     
     cnn2_mnist_preds, cnn2_mnist_report = cnn(X_train, y_train, X_val, y_val, model_cnn2, 50)
+
+    # Fit 3D models to data
+    cnn3_gol_preds, cnn3_gol_report = cnn(augmented_numbers_gol, y_train, augmented_numbers_gol_val, y_val, model_cnn3, 50)
+    cnn3_cor_preds, cnn3_cor_report = cnn(augmented_numbers_cor, y_train, augmented_numbers_cor_val, y_val, model_cnn3, 50)
+    cnn3_melt_preds, cnn3_melt_report = cnn(augmented_numbers_melt, y_train, augmented_numbers_melt_val, y_val, model_cnn3, 50)
+
+    # See performances of 3D models
+    classif_gol_3d = pd.DataFrame.from_dict(metrics.classification_report(y_val, np.argmax(cnn3_gol_preds, axis=1), output_dict=True))
+    print(classif_gol_3d["macro avg"]["f1-score"])
+
+    classif_cor_3d = pd.DataFrame.from_dict(metrics.classification_report(y_val, np.argmax(cnn3_cor_preds, axis=1), output_dict=True))
+    print(classif_cor_3d["macro avg"]["f1-score"])
+
+    classif_melt_3d = pd.DataFrame.from_dict(metrics.classification_report(y_val, np.argmax(cnn3_melt_preds, axis=1), output_dict=True))
+    print(classif_melt_3d["macro avg"]["f1-score"])
 
     # Ensemble predictions
     certain_model_gol, digits_gol = ensemble_predictions([cnn1_gol_preds, cnn2_mnist_preds])
