@@ -36,6 +36,7 @@ def plot_end_dist(df, n_gens: int=None, x: str='class', y: str='change', palette
                 )
     plt.xticks(rotation=45)
 
+s
 # Plot for MNIST examples
 def plot_mnist(X, y, cmap = "gray", savename = "plotting/mnist_example.png"):
     """Function for plotting examples of the MNIST dataset
@@ -70,6 +71,7 @@ def plot_mnist(X, y, cmap = "gray", savename = "plotting/mnist_example.png"):
     plt.savefig(savename)
     plt.show()
 
+
 # Plot for digit evolution
 def plot_8_generations(generations, cmap = "gray", save_name = "generation_plot.png"):
     """Function for plotting the seed and the next 8 generations
@@ -95,7 +97,6 @@ def plot_8_generations(generations, cmap = "gray", save_name = "generation_plot.
     plt.savefig(save_name, transparent = True)
     plt.show()
 
-# Plot showing original, augmented and cumulative change
 
 # Plot for wrongly classified
 def plot_images(img):
@@ -106,5 +107,3 @@ def plot_images(img):
     """    
     # Plot generations and save
     plt.plot,plt.imshow(img,cmap = 'gray'),plt.xticks([]), plt.yticks([])
-
-# Plot with image gradient vectors showing in pixels

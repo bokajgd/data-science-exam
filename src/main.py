@@ -16,7 +16,7 @@ from plotting.plot_utils import (plot_avg_timeseries, plot_end_dist, plot_mnist,
 def main():
 
     # Load data
-    X_train, X_val, X_test, y_train, y_val, y_test = load_data(dataset = "Fashion MNIST", subset=2000)
+    X_train, X_val, X_test, y_train, y_val, y_test = load_data(dataset = "Fashion MNIST", subset=1000)
     X_train_large, X_val_large, X_test_large, y_train_large, y_val_large, y_test_large = load_data(dataset = "Fashion MNIST", subset=20000)
 
 
@@ -26,7 +26,7 @@ def main():
     # X_test_noise = np.array([add_noise(x) for x in X_test])
 
     # Set parameters
-    n_gens = 30
+    n_gens = 60
     l=0.1
     v=5
     s=500
@@ -35,7 +35,7 @@ def main():
     df_cor, augmented_numbers_cor, cor_mass = cumulative_change(X=X_train, 
                                               y=y_train, 
                                               rule='corrosion',
-                                              n_generations=n_gens,
+                                              n_generations=n_gens/2,
                                               Q=Q, 
                                               l=l,
                                               v=v,
@@ -44,7 +44,7 @@ def main():
     df_gol, augmented_numbers_gol, gol_change = cumulative_change(X=X_train, 
                                               y=y_train, 
                                               rule='gol',
-                                              n_generations=n_gens,
+                                              n_generations=n_gens/5,
                                               threshold=0.0,
                                               context=context)
 
@@ -60,7 +60,7 @@ def main():
     df_cor_val, augmented_numbers_cor_val, cor_mass_val = cumulative_change(X=X_val, 
                                               y=y_val, 
                                               rule='corrosion',
-                                              n_generations=n_gens,
+                                              n_generations=n_gens/2,
                                               Q=Q, 
                                               l=l,
                                               v=v,
@@ -69,7 +69,7 @@ def main():
     df_gol_val, augmented_numbers_gol_val, gol_change_val = cumulative_change(X=X_val, 
                                               y=y_val, 
                                               rule='gol',
-                                              n_generations=n_gens,
+                                              n_generations=n_gens/5,
                                               threshold=0.0,
                                               context=context)
 
@@ -279,13 +279,18 @@ def main():
     lr_mnist_preds_con_last, lr_mnist_report_con_last = lr(X_train_con_last, y_train, X_train_val_con_last, y_val)
 
     # On augmentet images
-    lr_mnist_preds, lr_mnist_report = lr(X_train, y_train, X_val, y_val)
+    X_train_flat = X_train.reshape(2000,784)
+    X_val_flat = X_val.reshape(1000,784)
+    y_train = y_train.reshape(2000,1)
+    y_val = y_val.reshape(1000,1)
+
+    lr_mnist_preds, lr_mnistl_report = lr(X_train, y_train, X_val, y_val)
     lr_mnist_large_preds, lr_mnist_large_report = lr(X_train_large, y_train_large, X_val_large, y_val_large)
 
     last_aug_cor = np.array(augmented_numbers_cor)[:, 30, :,: ]
-    last_aug_cor_flat = last_aug_cor.reshape(4000,784)
+    last_aug_cor_flat = last_aug_cor.reshape(2000,784)
     last_aug_cor_val = np.array(augmented_numbers_cor_val)[:, 30, :,: ]
-    last_aug_cor_val_flat = last_aug_cor_val.reshape(2000,784)
+    last_aug_cor_val_flat = last_aug_cor_val.reshape(1000,784)
 
     X_train_aug_cor_con = np.hstack((X_train_flat, last_aug_cor_flat))
     X_val_aug_cor_con = np.hstack((X_val_flat, last_aug_cor_val_flat))
@@ -294,9 +299,9 @@ def main():
     lr_cor_aug_con_preds, lr_cor_aug_con_report = lr(X_train_aug_cor_con, y_train, X_val_aug_cor_con, y_val)
 
     last_aug_melt = np.array(augmented_numbers_melt)[:, 60, :,: ]
-    last_aug_melt_flat = last_aug_melt.reshape(4000,784)
+    last_aug_melt_flat = last_aug_melt.reshape(2000,784)
     last_aug_melt_val = np.array(augmented_numbers_melt_val)[:, 60, :,: ]
-    last_aug_melt_val_flat = last_aug_melt_val.reshape(2000,784)
+    last_aug_melt_val_flat = last_aug_melt_val.reshape(1000,784)
 
     X_train_aug_melt_con = np.hstack((X_train_flat, last_aug_melt_flat))
     X_val_aug_melt_con = np.hstack((X_val_flat, last_aug_melt_val_flat))
@@ -305,9 +310,9 @@ def main():
     lr_melt_aug_con_preds, lr_melt_aug_con_report = lr(X_train_aug_melt_con, y_train, X_val_aug_melt_con, y_val)
 
     last_aug_gol = np.array(augmented_numbers_gol)[:, 12, :,: ]
-    last_aug_gol_flat = last_aug_gol.reshape(4000,784)
+    last_aug_gol_flat = last_aug_gol.reshape(2000,784)
     last_aug_gol_val = np.array(augmented_numbers_gol_val)[:, 12, :,: ]
-    last_aug_gol_val_flat = last_aug_gol_val.reshape(2000,784)
+    last_aug_gol_val_flat = last_aug_gol_val.reshape(1000,784)
 
     X_train_aug_gol_con = np.hstack((X_train_flat, last_aug_gol_flat))
     X_val_aug_gol_con = np.hstack((X_val_flat, last_aug_gol_val_flat))
