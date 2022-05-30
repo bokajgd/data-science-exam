@@ -36,7 +36,7 @@ def plot_end_dist(df, n_gens: int=None, x: str='class', y: str='change', palette
                 )
     plt.xticks(rotation=45)
 
-s
+
 # Plot for MNIST examples
 def plot_mnist(X, y, cmap = "gray", savename = "plotting/mnist_example.png"):
     """Function for plotting examples of the MNIST dataset

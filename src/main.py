@@ -35,7 +35,7 @@ def main():
     df_cor, augmented_numbers_cor, cor_mass = cumulative_change(X=X_train, 
                                               y=y_train, 
                                               rule='corrosion',
-                                              n_generations=n_gens/2,
+                                              n_generations=int(n_gens/2),
                                               Q=Q, 
                                               l=l,
                                               v=v,
@@ -44,7 +44,7 @@ def main():
     df_gol, augmented_numbers_gol, gol_change = cumulative_change(X=X_train, 
                                               y=y_train, 
                                               rule='gol',
-                                              n_generations=n_gens/5,
+                                              n_generations=int(n_gens/5),
                                               threshold=0.0,
                                               context=context)
 
@@ -60,7 +60,7 @@ def main():
     df_cor_val, augmented_numbers_cor_val, cor_mass_val = cumulative_change(X=X_val, 
                                               y=y_val, 
                                               rule='corrosion',
-                                              n_generations=n_gens/2,
+                                              n_generations=int(n_gens/2),
                                               Q=Q, 
                                               l=l,
                                               v=v,
@@ -69,7 +69,7 @@ def main():
     df_gol_val, augmented_numbers_gol_val, gol_change_val = cumulative_change(X=X_val, 
                                               y=y_val, 
                                               rule='gol',
-                                              n_generations=n_gens/5,
+                                              n_generations=int(n_gens/5),
                                               threshold=0.0,
                                               context=context)
 
@@ -285,7 +285,7 @@ def main():
     y_val = y_val.reshape(1000,1)
 
     lr_mnist_preds, lr_mnistl_report = lr(X_train, y_train, X_val, y_val)
-    lr_mnist_large_preds, lr_mnist_large_report = lr(X_train_large, y_train_large, X_val_large, y_val_large)
+    lr_mnist_large_preds, lr_mnist_large_report = lr(X_train_large, y_train_large, X_val, y_val)
 
     last_aug_cor = np.array(augmented_numbers_cor)[:, 30, :,: ]
     last_aug_cor_flat = last_aug_cor.reshape(2000,784)
