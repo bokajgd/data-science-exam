@@ -65,7 +65,7 @@ def lr(X_train, y_train, X_test, y_test):
         X_test = X_test.reshape(X_test.shape[0], -1)
     
     # Define model
-    model = LogisticRegression(penalty='l2', tol = 0.0001, solver='sag', multi_class='auto', max_iter=200)
+    model = LogisticRegression(penalty='l2', tol = 0.0001, solver='sag', multi_class='auto', max_iter=500)
 
     # Fit model
     model.fit(X_train, y_train)
