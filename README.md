@@ -13,7 +13,7 @@ Transformation Processes</h1>
   <p align="center">
     Emil Trenckner Jessen, Jakob Grøhn Damgaard and Johan Kresten Horsmans
     <br />
-    <a href="https://github.com/bokajgd/data-science-exam/blob/main/Enhancing_Image_Classification_Using_Cellular_Automata_Inspired_by_Natural_Transformation_Processes.pdf"><strong>Read the paper here»</strong></a>
+    <a href="https://github.com/bokajgd/data-science-exam/blob/main/report.pdf"><strong>Read the paper here»</strong></a>
     <br />
   </p>
 </p>
@@ -36,7 +36,7 @@ Transformation Processes</h1>
 <p align="center"><em>Example image displaying the classification framework of the paper</em>
 </p>
 
-**See [here](https://github.com/bokajgd/data-science-exam/blob/main/Enhancing_Image_Classification_Using_Cellular_Automata_Inspired_by_Natural_Transformation_Processes.pdf) for an overview of the entire paper.**
+**See [here](https://github.com/bokajgd/data-science-exam/blob/main/report.pdf) for an overview of the entire paper.**
 
 This project contains the exam for the Data Science exam of 2022.
 
@@ -78,9 +78,7 @@ This repository has the following structure:
 |--------|:-----------|
 ```README_images/``` | Directory containing the few images used in the READMEs.
 ```src/``` | Directory containing the scripts of the analysis
-```Enhancing_Image_Classification
-_Using_Cellular_Automata_Inspired
-_by_Natural_Transformation_Processes.pdf``` | Document that provides a full overview of the exam project.
+```report.pdf``` | Document that provides a full overview of the exam project.
 ```vis/``` | Directory containing the visualizations produce by the main script
 ```requirements.txt``` | A list of the required packages.
 ```.gitignore``` | A list of the files that git should ignore upon push/pulling (e.g. virtual environment).
