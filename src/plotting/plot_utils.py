@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 # Defining function for plotting latent time series features averaged over each class
 def plot_avg_timeseries(df, x: str='generation', y: str='change', hue: str='class', palette: str='tab10', ylab: str='Change'):
-
+    """Function for plotting the time series of cumulative change during CA augmentation"""
     sb.lineplot(x=x, 
              y=y,
              hue=hue, 
@@ -21,6 +21,7 @@ def plot_avg_timeseries(df, x: str='generation', y: str='change', hue: str='clas
 
 # Plot for violin plots
 def plot_end_dist(df, n_gens: int=None, x: str='class', y: str='change', palette: str='tab10', ylab: str='Change'):
+    """Function for plotting the distribution of the amount of change at final iteration of CA"""
 
     if 'generation' in df:
 

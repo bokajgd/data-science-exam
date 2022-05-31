@@ -180,6 +180,7 @@ def make_3d_cnn_model(X_train_shape):
 
 # Define function for calculating mean number of active cells per class 
 def mean_cells_active(X,y):
+    """Function for calculating mean number of active cells per class"""
 
     # Retrieve indices for all samples of zeros, ones, two's, etc. ...
     indices = []
@@ -205,6 +206,7 @@ def mean_cells_active(X,y):
 
 # Define function for getting df with counts of active pixels for each image
 def active_cells(X,y):
+    """ Function for finding number of active cells in each images"""
     
     active_cells_in_img = [sum(sum(img> 0)) for img in X]
 
@@ -280,6 +282,8 @@ def preds_true_false(y: np.array, predictions: np.array):
 
 # Function for getting array of indexes of wrongly classified images
 def wrong_preds(array_1, array_2):
+    """Function for extracting list of indexes for imgs that were classified wrongly by first model
+    but correctly by second model"""
     idxs = []
 
     for idx, _ in enumerate(array_1):

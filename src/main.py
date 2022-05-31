@@ -7,7 +7,7 @@ from sklearn.metrics import matthews_corrcoef
 import matplotlib.pyplot as plt
 from sklearn import metrics, datasets, preprocessing
 
-from utils import (load_data, Q, context, make_1d_cnn_model, make_1d_cnn_model, make_2d_cnn_model, mean_cells_active, active_cells, add_noise, normalize_2d, preds_true_false, wrong_preds, binarise)
+from utils import (load_data, Q, context, make_1d_cnn_model, make_1d_cnn_model, make_2d_cnn_model, make_3d_cnn_model, mean_cells_active, active_cells, add_noise, normalize_2d, preds_true_false, wrong_preds, binarise)
 from rules import cumulative_change
 from models.models import (cnn, lr, ensemble_predictions, ensemble_avg_proba)
 from plotting.plot_utils import (plot_avg_timeseries, plot_end_dist, plot_mnist, plot_8_generations, plot_images)
@@ -19,11 +19,14 @@ def main():
     X_train, X_val, X_test, y_train, y_val, y_test = load_data(dataset = "Fashion MNIST", subset=1000)
     X_train_large, X_val_large, X_test_large, y_train_large, y_val_large, y_test_large = load_data(dataset = "Fashion MNIST", subset=20000)
 
-
     # Generate noisy data
     # X_train_noise = np.array([add_noise(x) for x in X_train])
     # X_val_noise = np.array([add_noise(x) for x in X_val])
     # X_test_noise = np.array([add_noise(x) for x in X_test])
+
+
+     ### AUGMENTATION ###   
+
 
     # Set parameters
     n_gens = 60
@@ -88,122 +91,7 @@ def main():
     augmented_numbers_gol_val = np.array(augmented_numbers_gol_val)
     augmented_numbers_melt_val = np.array(augmented_numbers_melt_val)
 
-    # Make base models
-    model_cnn1 = make_1d_cnn_model(cor_mass.shape)
-
-    model_cnn1_melt = make_1d_cnn_model(melt_mass.shape)
-
-    model_cnn1_gol = make_1d_cnn_model(gol_change.shape)
-
-    model_cnn2 = make_2d_cnn_model(X_train.shape)
-
-    model_cnn3 = make_3d_cnn_model(augmented_numbers_gol.shape)
-
-    # Fit models to data
-    cnn1_cor_preds, cnn1_cor_report = cnn(cor_mass, y_train, cor_mass_val, y_val, model_cnn1, 50)
-
-    cnn1_gol_preds, cnn1_gol_report = cnn(gol_change, y_train, gol_change_val, y_val, model_cnn1_gol, 50)
-
-    cnn1_melt_preds, cnn1_melt_report = cnn(melt_mass, y_train, melt_mass_val, y_val, model_cnn1_melt, 50)
-    
-    cnn2_mnist_preds, cnn2_mnist_report = cnn(X_train, y_train, X_val, y_val, model_cnn2, 50)
-
-    # Fit 3D models to data
-    cnn3_gol_preds, cnn3_gol_report = cnn(augmented_numbers_gol, y_train, augmented_numbers_gol_val, y_val, model_cnn3, 50)
-    cnn3_cor_preds, cnn3_cor_report = cnn(augmented_numbers_cor, y_train, augmented_numbers_cor_val, y_val, model_cnn3, 50)
-    cnn3_melt_preds, cnn3_melt_report = cnn(augmented_numbers_melt, y_train, augmented_numbers_melt_val, y_val, model_cnn3, 50)
-
-    # See performances of 3D models
-    classif_gol_3d = pd.DataFrame.from_dict(metrics.classification_report(y_val, np.argmax(cnn3_gol_preds, axis=1), output_dict=True))
-    print(classif_gol_3d["macro avg"]["f1-score"])
-
-    classif_cor_3d = pd.DataFrame.from_dict(metrics.classification_report(y_val, np.argmax(cnn3_cor_preds, axis=1), output_dict=True))
-    print(classif_cor_3d["macro avg"]["f1-score"])
-
-    classif_melt_3d = pd.DataFrame.from_dict(metrics.classification_report(y_val, np.argmax(cnn3_melt_preds, axis=1), output_dict=True))
-    print(classif_melt_3d["macro avg"]["f1-score"])
-
-    # Ensemble predictions
-    certain_model_gol, digits_gol = ensemble_predictions([cnn1_gol_preds, cnn2_mnist_preds])
-    certain_model_cor, digits_cor = ensemble_predictions([cnn1_cor_preds, cnn2_mnist_preds])
-    certain_model_melt, digits_melt = ensemble_predictions([cnn1_melt_preds, cnn2_mnist_preds])
-    certain_model_full, digits_full = ensemble_predictions([cnn1_cor_preds, cnn1_gol_preds, cnn1_melt_preds,cnn2_mnist_preds])
-
-    ensemble_preds_gol = ensemble_avg_proba([cnn1_gol_preds, cnn2_mnist_preds])
-    ensemble_preds_cor = ensemble_avg_proba([cnn1_cor_preds, cnn2_mnist_preds])
-    ensemble_preds_melt = ensemble_avg_proba([cnn1_melt_preds, cnn2_mnist_preds])
-    ensemble_preds_full = ensemble_avg_proba([cnn1_gol_preds, cnn1_cor_preds, cnn1_melt_preds, cnn2_mnist_preds])
-
-    # Matthews correlation coefficient
-    mcc_mnist_certain = metrics.matthews_corrcoef(y_val, np.argmax(cnn2_mnist_preds, axis=1), sample_weight=None)
-    mcc_mnist_gol_certain = metrics.matthews_corrcoef(y_val, digits_gol, sample_weight=None)
-    mcc_mnist_cor_certain = metrics.matthews_corrcoef(y_val, digits_cor, sample_weight=None)
-    mcc_mnist_melt_certain = metrics.matthews_corrcoef(y_val, digits_melt, sample_weight=None)
-    mcc_full_certain = metrics.matthews_corrcoef(y_val, digits_full, sample_weight=None)
-
-    mcc_mnist_avg = metrics.matthews_corrcoef(y_val, np.argmax(cnn2_mnist_preds, axis=1), sample_weight=None)
-    mcc_mnist_gol_avg = metrics.matthews_corrcoef(y_val, ensemble_preds_gol, sample_weight=None)
-    mcc_mnist_cor_avg = metrics.matthews_corrcoef(y_val, ensemble_preds_cor, sample_weight=None)
-    mcc_mnist_melt_avg = metrics.matthews_corrcoef(y_val, ensemble_preds_melt, sample_weight=None)
-    mcc_full_avg = metrics.matthews_corrcoef(y_val, ensemble_preds_full, sample_weight=None)
-
-    # Classification reports
-    classif_mnist_certain    = pd.DataFrame.from_dict(metrics.classification_report(y_val, np.argmax(cnn2_mnist_preds, axis=1), output_dict=True))
-    classif_mnist_certain_gol = pd.DataFrame.from_dict(metrics.classification_report(y_val, digits_gol, output_dict=True))
-    classif_mnist_certain_cor = pd.DataFrame.from_dict(metrics.classification_report(y_val, digits_cor, output_dict=True))
-    classif_mnist_certain_melt = pd.DataFrame.from_dict(metrics.classification_report(y_val, digits_melt, output_dict=True))
-    classif_certain_ensemble = pd.DataFrame.from_dict(metrics.classification_report(y_val, digits_full, output_dict=True))
-    
-    classif_mnist_avg    = pd.DataFrame.from_dict(metrics.classification_report(y_val, np.argmax(cnn2_mnist_preds, axis=1), output_dict=True))
-    classif_mnist_avg_gol = pd.DataFrame.from_dict(metrics.classification_report(y_val, ensemble_preds_gol, output_dict=True))
-    classif_mnist_avg_cor = pd.DataFrame.from_dict(metrics.classification_report(y_val, ensemble_preds_cor, output_dict=True))
-    classif_mnist_avg_melt = pd.DataFrame.from_dict(metrics.classification_report(y_val, ensemble_preds_melt, output_dict=True))
-    classif_avg_ensemble = pd.DataFrame.from_dict(metrics.classification_report(y_val, ensemble_preds_full, output_dict=True))
-    
-    print(classif_mnist_certain["macro avg"]["f1-score"])
-    print(classif_mnist_certain_gol["macro avg"]["f1-score"])
-    print(classif_mnist_certain_cor["macro avg"]["f1-score"])
-    print(classif_mnist_certain_melt["macro avg"]["f1-score"])
-    print(classif_certain_ensemble["macro avg"]["f1-score"])
-
-    print(classif_mnist_avg["macro avg"]["f1-score"])
-    print(classif_mnist_avg_gol["macro avg"]["f1-score"])
-    print(classif_mnist_avg_cor["macro avg"]["f1-score"])
-    print(classif_mnist_avg_melt["macro avg"]["f1-score"])
-    print(classif_avg_ensemble["macro avg"]["f1-score"])
-
-    # Which models were used?
-    pd.Series(certain_model_gol).value_counts()
-    pd.Series(certain_model_cor).value_counts()
-    pd.Series(certain_model_melt).value_counts()
-    pd.Series(certain_model_full).value_counts()
-
-
-    # Generate other plots
-
-
-    plot_end_dist(df=df_cor, n_gens=int(n_gens/2), ylab=f'Cumulative Corroded Mass {int(n_gens/2)} Generations')
-
-    plot_end_dist(df=df_gol, n_gens=int(n_gens/5), ylab=f'Change in Living Cells after {int(n_gens/5)} Generations')
-
-    plot_end_dist(df=df_melt, n_gens=int(n_gens), ylab=f'Cumulative Melted Mass {int(n_gens)} Generations')
-
-
-    # Plotting class-averaged time series for cumulative corrosion mass
-    plot_avg_timeseries(df=df_cor, ylab='Cumulative Corroded Mass')
-
-    plot_avg_timeseries(df=df_gol, ylab='Change in Living Cells')
-    
-    plot_avg_timeseries(df=df_melt, ylab='Cumulative Melted Mass')
-
-    # Get active cells in raw mnist
-    active_cells = active_cells(X_train,y_train)
-    
-    plot_end_dist(df=active_cells)
-
-    # Hyperparameter tuning loop
-
-    # Save files
+        # Save files
     with open('/Users/jakobgrohn/Desktop/Cognitive_Science/Cognitive Science 8th Semester/Data Science/Eksamen/data-science-exam/output/cor_aug.csv', 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
         writer.writerows(augmented_numbers_cor)
@@ -228,61 +116,12 @@ def main():
         writer = csv.writer(csvfile, delimiter=',')
         writer.writerows(augmented_numbers_melt_val)
 
+    
+    ### RUN MODELS ###
 
-    # Logistic regression
-    # Reshape and flatten
-    # Normalising and conctatinating 
-    X_train_flat = X_train.reshape(40000,784)
-    X_train_flat_norm = normalize_2d(X_train_flat)
-
-    X_val_flat = X_val.reshape(5000,784)
-    X_val_flat_norm = normalize_2d(X_val_flat)
-
-    melt_mass_norm = normalize_2d(melt_mass/1000)
-    melt_mass_val_norm = normalize_2d(melt_mass_val/1000)
-
-    cor_mass_norm = normalize_2d(cor_mass/1000)
-    cor_mass_val_norm = normalize_2d(cor_mass_val/1000)
-
-    gol_change_norm = normalize_2d(gol_change)
-    gol_change_val_norm = normalize_2d(gol_change_val)
-
-    X_train_melt_con = np.hstack((X_train_flat, melt_mass/1000))
-    X_val_melt_con = np.hstack((X_val_flat, melt_mass_val/1000))
-
-    X_train_con = np.hstack((X_train_flat, melt_mass/1000, cor_mass/1000, gol_change))
-    X_val_con = np.hstack((X_val_flat, melt_mass_val/1000, cor_mass_val/1000, gol_change_val))
-
-    lr_mnist_preds, lr_mnist_report = lr(X_train, y_train, X_val, y_val)
-    lr_mnist_preds_melt, lr_mnist_report_melt = lr(X_train_melt_con, y_train, X_val_melt_con, y_val)
-    lr_mnist_preds_con, lr_mnist_report_con = lr(X_train_con, y_train, X_val_con, y_val)
-
-
-    # Only last values  
-    melt_last = np.array(df_melt['change'].loc[df_melt['generation'] == n_gens])/1000
-    melt_last = melt_last.reshape(2000,1)
-    cor_last = np.array(df_cor['change'].loc[df_cor['generation'] == n_gens/2])/1000
-    cor_last = cor_last.reshape(2000,1)
-    gol_last = np.array(df_gol['change'].loc[df_gol['generation'] == n_gens/5])
-    gol_last = gol_last.reshape(2000,1)
-
-    melt_last_val = np.array(df_melt_val['change'].loc[df_melt_val['generation'] == n_gens])/1000
-    melt_last_val = melt_last_val.reshape(1000,1)
-    cor_last_val = np.array(df_cor_val['change'].loc[df_cor_val['generation'] == n_gens/2])/1000
-    cor_last_val = cor_last_val.reshape(1000,1)
-    gol_last_val = np.array(df_gol_val['change'].loc[df_gol_val['generation'] == n_gens/5])
-    gol_last_val = gol_last_val.reshape(1000,1)
-
-    X_train_con_last = np.hstack((X_train_flat, melt_last, cor_last, gol_last))
-    X_train_val_con_last = np.hstack((X_val_flat, melt_last_val , cor_last_val, gol_last_val))
-
-    lr_mnist_preds_con_last, lr_mnist_report_con_last = lr(X_train_con_last, y_train, X_train_val_con_last, y_val)
-
-    # On augmentet images
+    # Concatenating using augmented images
     X_train_flat = X_train.reshape(2000,784)
     X_val_flat = X_val.reshape(1000,784)
-    y_train = y_train.reshape(2000,1)
-    y_val = y_val.reshape(1000,1)
 
     lr_mnist_preds, lr_mnist_report = lr(X_train, y_train, X_val, y_val)
     lr_mnist_large_preds, lr_mnist_large_report = lr(X_train_large, y_train_large, X_val, y_val)
@@ -323,7 +162,7 @@ def main():
     X_train_aug_all_con = np.hstack((X_train_flat, last_aug_melt_flat, last_aug_cor_flat, last_aug_gol_flat))
     X_val_aug_all_con = np.hstack((X_val_flat, last_aug_melt_val_flat, last_aug_cor_val_flat, last_aug_gol_val_flat))
 
-    lr_all_aug_con_preds, lrs_all_aug_con_report = lr(X_train_aug_all_con, y_train, X_val_aug_all_con, y_val)
+    lr_all_aug_con_preds, lr_all_aug_con_report = lr(X_train_aug_all_con, y_train, X_val_aug_all_con, y_val)
 
     # Plotting MCC
     mcc_lr_mnist = metrics.matthews_corrcoef(y_val, np.argmax(lr_mnist_preds, axis=1), sample_weight=None)
@@ -346,6 +185,32 @@ def main():
     print(mcc_lr_mnist_gol)
     print(mcc_lr_all_con)
 
+
+    ### PLOTTING ###
+
+
+    # Generate other plots
+
+    plot_end_dist(df=df_cor, n_gens=int(n_gens/2), ylab=f'Cumulative Corroded Mass {int(n_gens/2)} Generations')
+
+    plot_end_dist(df=df_gol, n_gens=int(n_gens/5), ylab=f'Change in Living Cells after {int(n_gens/5)} Generations')
+
+    plot_end_dist(df=df_melt, n_gens=int(n_gens), ylab=f'Cumulative Melted Mass {int(n_gens)} Generations')
+
+
+    # Plotting class-averaged time series for cumulative corrosion mass
+    plot_avg_timeseries(df=df_cor, ylab='Cumulative Corroded Mass')
+
+    plot_avg_timeseries(df=df_gol, ylab='Change in Living Cells')
+    
+    plot_avg_timeseries(df=df_melt, ylab='Cumulative Melted Mass')
+
+    # Get active cells in raw mnist
+    active_cells = active_cells(X_train,y_train)
+    
+    plot_end_dist(df=active_cells)
+
+    
     # Plot wrongly classified
     lr_all_aug_con_true_false = preds_true_false(y_val, lr_all_aug_con_preds)
     lr_mnist_wrong_true_false = preds_true_false(y_val, lr_mnist_preds)
@@ -361,6 +226,7 @@ def main():
     plot_images(melt_ex)
     mnist_ex = np.array(X_val)[23, : , :]
     plot_images(mnist_ex)
+
 
     # Plot before, after, change plot
     cor_ex_ba = np.array(augmented_numbers_cor_val)[1, 30, : , :]
@@ -388,6 +254,27 @@ def main():
     before_after = np.array(before_after)
 
     plot_8_generations(before_after)
+
+
+    # Plot Sobel gradients
+    img = np.array(X_train[12], dtype=np.float32)
+
+    sobely = cv2.Sobel(img,cv2.CV_64F,0,1,ksize=3)
+
+    plot_images(img)
+
+
+    # Plot images of 8 iterations 
+    cor_first_8 = augmented_numbers_cor[0, 0:8, : , :]
+    plot_8_generations(cor_first_8)
+
+    gol_first_8 = augmented_numbers_gol[0, 0:8, : , :]
+    plot_8_generations(gol_first_8)
+
+    melt_first_8 = augmented_numbers_melt[0, 0:8, : , :]
+    plot_8_generations(melt_first_8)
+
+
 
 if __name__ == "__main__":
     main()
