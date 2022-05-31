@@ -18,7 +18,6 @@ Transformation Processes</h1>
   </p>
 </p>
 
-
 <!-- TABLE OF CONTENTS -->
 <details open="open">
   <summary>Table of Contents</summary>
@@ -30,12 +29,11 @@ Transformation Processes</h1>
   </ol>
 </details>
 
-
 <!-- ABOUT THE PROJECT -->
 ## About the project
 
-<p align="center"><img src="README_images/analysis_example.png" alt="Logo" width="375" height="295"></p>
-<p align="center"><em>Example image from one of the assignments</em>
+<p align="center"><img src="README_images/classification_framework.png" alt="Logo" width="375" height="295"></p>
+<p align="center"><em>Example image displaying the classification framework of the paper</em>
 </p>
 
 **See [here](https://github.com/bokajgd/data-science-exam/blob/main/Enhancing_Image_Classification_Using_Cellular_Automata_Inspired_by_Natural_Transformation_Processes.pdf) for an overview of the entire paper.**
@@ -43,7 +41,6 @@ Transformation Processes</h1>
 This project contains the exam for the Data Science exam of 2022.
 
 Many recent advances within the field of image classification are coming from the development of various new data augmentation methods which enable ample model training when faced with scarce data resources (Shorten & Khoshgoftaar, 2019). This paper investigates a novel approach to data augmentation in which cellular automata simulations are used as a method to enhance image data distinctiveness. We develop a set of cellular automata rules and apply them to the Fashion-MNIST data set to assess whether it is possible to enhance discriminatory features of the images in a way that will improve the classification performance of a simple multinomial logistic regression model. The rule sets utilized are rooted in natural transformation processes, namely, the Game of Life, pitting corrosion and melting. Our results suggest that the cellular automata algorithms are successful in enhancing unique and distinguishable key-features between the different image categories as the inclusion of the processed images leads to an increase in performance from 0.762 to 0.807 as measured in Matthews Correlation Coefficient. Hereafter, we discuss what might constitute the emergent discriminatory properties in the processed images which lead to improved performance. Lastly, we explore potential future prospects of using CA augmentation in combination with multidimensional convolutional neural networks within the field of computer vision.
-
 
 <!-- GETTING STARTED -->
 ## Getting started
@@ -78,15 +75,12 @@ This repository has the following structure:
 
 | Column | Description|
 |--------|:-----------|
-```assignment_*/``` | Directory containing the four assignments
-```utils/``` | Utility functions written by our instructor [Ross Deans Kristensen-McLachlan](https://pure.au.dk/portal/en/persons/ross-deans-kristensenmclachlan(29ad140e-0785-4e07-bdc1-8af12f15856c).html), utilized in a range of the assignments.
 ```README_images/``` | Directory containing the few images used in the READMEs.
-```report.pdf``` | Document that provides a full overview of the exam project. The information contained in this document is the collated information from all READMEs.
-```data_download.sh``` | Bash script that installs all the necessary data.
-```create_vis_venv.*.sh``` | Bash scripts that automatically generates a new virtual environment, and install all the packages contained within ```requirements.txt```.
-```kill_vision_venv.sh``` | Bash script that uninstalls and deletes the virtual environment.
+```src/``` | Directory containing the scripts of the analysis
+```Enhancing_Image_Classification_Using_Cellular_Automata_Inspired_by_Natural_Transformation_Processes.pdf``` | Document that provides a full overview of the exam project.
+```vis/``` | Directory containing the visualizations produce by the main script
 ```requirements.txt``` | A list of the required packages.
-```.gitignore``` | A list of the files that git should ignore upon push/pulling (virtual environment and data).
+```.gitignore``` | A list of the files that git should ignore upon push/pulling (e.g. virtual environment).
 ```README.md``` | This very README file.
 
 <!-- CONTACT -->
