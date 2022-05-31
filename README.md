@@ -40,6 +40,7 @@ Transformation Processes</h1>
 
 This project contains the exam for the Data Science exam of 2022.
 
+## Abstract
 Many recent advances within the field of image classification are coming from the development of various new data augmentation methods which enable ample model training when faced with scarce data resources (Shorten & Khoshgoftaar, 2019). This paper investigates a novel approach to data augmentation in which cellular automata simulations are used as a method to enhance image data distinctiveness. We develop a set of cellular automata rules and apply them to the Fashion-MNIST data set to assess whether it is possible to enhance discriminatory features of the images in a way that will improve the classification performance of a simple multinomial logistic regression model. The rule sets utilized are rooted in natural transformation processes, namely, the Game of Life, pitting corrosion and melting. Our results suggest that the cellular automata algorithms are successful in enhancing unique and distinguishable key-features between the different image categories as the inclusion of the processed images leads to an increase in performance from 0.762 to 0.807 as measured in Matthews Correlation Coefficient. Hereafter, we discuss what might constitute the emergent discriminatory properties in the processed images which lead to improved performance. Lastly, we explore potential future prospects of using CA augmentation in combination with multidimensional convolutional neural networks within the field of computer vision.
 
 <!-- GETTING STARTED -->
