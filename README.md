@@ -32,7 +32,7 @@ Transformation Processes</h1>
 <!-- ABOUT THE PROJECT -->
 ## About the project
 
-<p align="center"><img src="README_images/classification_framework.png" alt="Logo" width="375" height="295"></p>
+<p align="center"><img src="README_images/classification_framework.png" alt="Logo" width="295" height="375"></p>
 <p align="center"><em>Example image displaying the classification framework of the paper</em>
 </p>
 
