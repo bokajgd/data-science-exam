@@ -78,7 +78,9 @@ This repository has the following structure:
 |--------|:-----------|
 ```README_images/``` | Directory containing the few images used in the READMEs.
 ```src/``` | Directory containing the scripts of the analysis
-```Enhancing_Image_Classification_Using_Cellular_Automata_Inspired_by_Natural_Transformation_Processes.pdf``` | Document that provides a full overview of the exam project.
+```Enhancing_Image_Classification
+_Using_Cellular_Automata_Inspired
+_by_Natural_Transformation_Processes.pdf``` | Document that provides a full overview of the exam project.
 ```vis/``` | Directory containing the visualizations produce by the main script
 ```requirements.txt``` | A list of the required packages.
 ```.gitignore``` | A list of the files that git should ignore upon push/pulling (e.g. virtual environment).
