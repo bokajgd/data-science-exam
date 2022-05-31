@@ -284,7 +284,7 @@ def main():
     y_train = y_train.reshape(2000,1)
     y_val = y_val.reshape(1000,1)
 
-    lr_mnist_preds, lr_mnistl_report = lr(X_train, y_train, X_val, y_val)
+    lr_mnist_preds, lr_mnist_report = lr(X_train, y_train, X_val, y_val)
     lr_mnist_large_preds, lr_mnist_large_report = lr(X_train_large, y_train_large, X_val, y_val)
 
     last_aug_cor = np.array(augmented_numbers_cor)[:, 30, :,: ]
@@ -323,7 +323,7 @@ def main():
     X_train_aug_all_con = np.hstack((X_train_flat, last_aug_melt_flat, last_aug_cor_flat, last_aug_gol_flat))
     X_val_aug_all_con = np.hstack((X_val_flat, last_aug_melt_val_flat, last_aug_cor_val_flat, last_aug_gol_val_flat))
 
-    lr_all_aug_con_preds, lr_all_aug_con_report = lr(X_train_aug_all_con, y_train, X_val_aug_all_con, y_val)
+    lr_all_aug_con_preds, lrs_all_aug_con_report = lr(X_train_aug_all_con, y_train, X_val_aug_all_con, y_val)
 
     # Plotting MCC
     mcc_lr_mnist = metrics.matthews_corrcoef(y_val, np.argmax(lr_mnist_preds, axis=1), sample_weight=None)
